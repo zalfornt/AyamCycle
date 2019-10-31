@@ -16,8 +16,14 @@ public class GameManager : MonoBehaviour
     private int nextX; private int nextY;
 
     public bool ReadyToMove{get; set;}
+    public int movingTiles = 0;
+
     private bool waitForSpawn;
     private bool playing;
+
+    private int tempCount;
+
+    private bool stillMoving;
 
     private void Awake()
     {
@@ -29,14 +35,16 @@ public class GameManager : MonoBehaviour
     {
         playing = true;
         waitForSpawn = false;
-        SpawnTile();
-        SpawnTile();
+        SpawnTile(); SpawnTile();
         ReadyToMove = true;
     }
 
     // Update is called once per frame
     void Update()
     {
+        //Debug.Log(ReadyToMove);
+        //Debug.Log(CountTiles());
+        if (!ReadyToMove) CheckTileMovement();
         if(ReadyToMove && waitForSpawn)
         {
             waitForSpawn = false;
@@ -48,25 +56,27 @@ public class GameManager : MonoBehaviour
     void InputManager()
     {
         if(ReadyToMove && playing){
-            #if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBPLAYER
-                if (Input.GetKeyDown(KeyCode.UpArrow))
-                MoveTiles(0);
-                if (Input.GetKeyDown(KeyCode.RightArrow))
-                MoveTiles(1);
-                if (Input.GetKeyDown(KeyCode.DownArrow))
-                MoveTiles(2);
-                if (Input.GetKeyDown(KeyCode.LeftArrow))
-                MoveTiles(3);
-            #elif UNITY_ANDROID || UNITY_IOS
-                //Read swipes    
-            #endif
+//#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBPLAYER
+            if (Input.GetKeyDown(KeyCode.UpArrow))
+            MoveTiles(0);
+            else if (Input.GetKeyDown(KeyCode.RightArrow))
+            MoveTiles(1);
+            else if (Input.GetKeyDown(KeyCode.DownArrow))
+            MoveTiles(2);
+            else if (Input.GetKeyDown(KeyCode.LeftArrow))
+            MoveTiles(3);
+//#elif UNITY_ANDROID || UNITY_IOS
+            SwipeManager.Swipe();
+//#endif
         }
-        if (Input.GetKeyDown(KeyCode.Space)) //For Debugging Purposes Only
-            SpawnTile();
+        //if (Input.GetKeyDown(KeyCode.Space)) //For Debugging Purposes Only
+        //    SpawnTile();
     }
 
     void MoveTiles(int dir)
     {
+        ReadyToMove = false;
+
         Vector2 moveDir = Vector2.zero;
 
         int[] xCell = { 0, 1, 2, 3 };
@@ -100,10 +110,12 @@ public class GameManager : MonoBehaviour
                 {
                     grid[x, y].combineable = true;
 
-                    //currCell is the reference to the cell that we want to move the new tile to
-                    //nextCell is the reference to the cell after the current cell, 
-                    //if it is an occupied cell that is combineable, go combine
-                    //else move tile to currcell
+                    /*
+                    / currCell is the reference to the cell that we want to move the new tile to
+                    / nextCell is the reference to the cell after the current cell, 
+                    / if it is an occupied cell that is combineable, go combine
+                    / else move tile to currcell
+                    */
 
                     currCell = nextCell = new Vector2(x, y);
                     
@@ -150,6 +162,54 @@ public class GameManager : MonoBehaviour
         {
             waitForSpawn = true;
         }
+    }
+
+    private void CheckTileMovement()
+    {
+
+        //stillMoving = true;
+        //foreach (Tile tile in grid)
+        //{
+        //    if (tile != null)
+        //    {
+        //        if(tile.moveAndCombine || tile.moving)
+        //        {
+        //            stillMoving = true;
+        //            Debug.Log("tiles still moving");
+        //        }
+        //        else if(!tile.moveAndCombine && !tile.moving)
+        //        {
+        //            stillMoving = false;
+        //        }
+        //    }
+        //}
+        //if (!stillMoving)
+        //{
+        //    Debug.Log("all tiles stopped moving");
+        //    ReadyToMove = true;
+        //}
+
+        if(movingTiles == 0)
+        {
+            ReadyToMove = true;
+            Debug.Log("all tiles moved");
+            return;
+        }
+        Debug.Log("still moving");
+
+    }
+
+    private int CountTiles()
+    {
+        tempCount = 0;
+        foreach (Tile tile in grid)
+        {
+            if(tile != null)
+            {
+                tempCount++;
+            }
+        }
+        return tempCount;
     }
 
     private void SpawnTile()

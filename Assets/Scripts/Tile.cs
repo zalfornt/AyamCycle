@@ -15,9 +15,8 @@ public class Tile : MonoBehaviour
     public int stage;
     public Gender gender;
     public bool combineable;
-
-    private bool moving;
-    private bool moveAndCombine;
+    public bool moving;
+    public bool moveAndCombine;
 
     private void Awake()
     {
@@ -40,23 +39,29 @@ public class Tile : MonoBehaviour
         if (transform.position != newPos && (moving || moveAndCombine))
         {
             Blackboard.Instance.GameManager.ReadyToMove = false;
-            transform.position = Vector3.MoveTowards(transform.position, newPos, 100 * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, newPos, 5 * Time.deltaTime);
         }
         else
         {
             if (moveAndCombine)
             {
                 combinedTile.TriggerNextStage();
+                Blackboard.Instance.GameManager.movingTiles--;
                 Destroy(this.gameObject);
             }
-            Blackboard.Instance.GameManager.ReadyToMove = true;
-            moving = false;
+            if (moving)
+            {
+                moving = false;
+                Blackboard.Instance.GameManager.movingTiles--;
+            }
+            //Blackboard.Instance.GameManager.ReadyToMove = true;
         }
     }
 
     public void SetNewDestination(int oldX, int oldY, int newX, int newY)
     {
         moving = true;
+        Blackboard.Instance.GameManager.movingTiles++;
         Blackboard.Instance.GameManager.grid[oldX, oldY] = null;
         newPos = GridController.FindTilePos(newX, newY);
         Blackboard.Instance.GameManager.grid[newX, newY] = this;
@@ -65,24 +70,25 @@ public class Tile : MonoBehaviour
     public void SetNewDestination(int oldX, int oldY, int newX, int newY, bool combine, Tile _combinedTile)
     {
         moveAndCombine = true;
+        Blackboard.Instance.GameManager.movingTiles++;
         Blackboard.Instance.GameManager.grid[oldX, oldY] = null;
         newPos = GridController.FindTilePos(newX, newY);
         combinedTile = _combinedTile;
-    }
-
-
-    public void TriggerNextStage()
-    {
-        if (stage == 4)
+        if(combinedTile.stage == 4)
         {
-            Blackboard.Instance.TileSpriteHandler.SetNewSprite(0, gender, spr);
-            stage = 0;
+            combinedTile.stage = 0;
         }
         else
         {
-            Blackboard.Instance.TileSpriteHandler.SetNewSprite(stage + 1, gender, spr);
-            stage += 1;
+            combinedTile.stage += 1;
         }
+        combinedTile.combineable = false;
+    }
+
+    public void TriggerNextStage()
+    {
+        Blackboard.Instance.TileSpriteHandler.SetNewSprite(stage, gender, spr);
+
         //Debug.Log("combined");
         //set vfx(?)
         //gives score
