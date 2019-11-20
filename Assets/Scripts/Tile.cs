@@ -39,20 +39,21 @@ public class Tile : MonoBehaviour
         if (transform.position != newPos && (moving || moveAndCombine))
         {
             Blackboard.Instance.GameManager.ReadyToMove = false;
-            transform.position = Vector3.MoveTowards(transform.position, newPos, 5 * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, newPos, 25 * Time.deltaTime);
         }
         else
         {
             if (moveAndCombine)
             {
                 combinedTile.TriggerNextStage();
-                Blackboard.Instance.GameManager.movingTiles--;
+                //Blackboard.Instance.GameManager.movingTiles--;
+                moveAndCombine = false;
                 Destroy(this.gameObject);
             }
             if (moving)
             {
+                //Blackboard.Instance.GameManager.movingTiles--;
                 moving = false;
-                Blackboard.Instance.GameManager.movingTiles--;
             }
             //Blackboard.Instance.GameManager.ReadyToMove = true;
         }
@@ -60,29 +61,37 @@ public class Tile : MonoBehaviour
 
     public void SetNewDestination(int oldX, int oldY, int newX, int newY)
     {
-        moving = true;
-        Blackboard.Instance.GameManager.movingTiles++;
-        Blackboard.Instance.GameManager.grid[oldX, oldY] = null;
-        newPos = GridController.FindTilePos(newX, newY);
-        Blackboard.Instance.GameManager.grid[newX, newY] = this;
+        if (!moving && !moveAndCombine)
+        {
+            moving = true;
+            //Blackboard.Instance.GameManager.movingTiles++;
+            Blackboard.Instance.GameManager.movingTiles.Add(this);
+            Blackboard.Instance.GameManager.grid[oldX, oldY] = null;
+            newPos = GridController.FindTilePos(newX, newY);
+            Blackboard.Instance.GameManager.grid[newX, newY] = this;
+        }
     }
 
     public void SetNewDestination(int oldX, int oldY, int newX, int newY, bool combine, Tile _combinedTile)
     {
-        moveAndCombine = true;
-        Blackboard.Instance.GameManager.movingTiles++;
-        Blackboard.Instance.GameManager.grid[oldX, oldY] = null;
-        newPos = GridController.FindTilePos(newX, newY);
-        combinedTile = _combinedTile;
-        if(combinedTile.stage == 4)
+        if (!moving && !moveAndCombine)
         {
-            combinedTile.stage = 0;
+            moveAndCombine = true;
+            //Blackboard.Instance.GameManager.movingTiles++;
+            Blackboard.Instance.GameManager.movingTiles.Add(this);
+            Blackboard.Instance.GameManager.grid[oldX, oldY] = null;
+            newPos = GridController.FindTilePos(newX, newY);
+            combinedTile = _combinedTile;
+            if (combinedTile.stage == 4)
+            {
+                combinedTile.stage = 0;
+            }
+            else
+            {
+                combinedTile.stage += 1;
+            }
+            combinedTile.combineable = false;
         }
-        else
-        {
-            combinedTile.stage += 1;
-        }
-        combinedTile.combineable = false;
     }
 
     public void TriggerNextStage()

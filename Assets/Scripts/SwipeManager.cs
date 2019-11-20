@@ -20,7 +20,7 @@ public class SwipeManager : MonoBehaviour
     public static bool swipedDown = false;
 
 
-    public static bool debugWithArrowKeys = true;
+    public static bool debugWithArrowKeys = false;
 
     static Vector2 startPos;
     static float startTime;
@@ -57,10 +57,12 @@ public class SwipeManager : MonoBehaviour
                     if (swipe.x > 0)
                     {
                         swipedRight = true;
+                        return 1;
                     }
                     else
                     {
                         swipedLeft = true;
+                        return 3;
                     }
                 }
                 else
@@ -68,10 +70,12 @@ public class SwipeManager : MonoBehaviour
                     if (swipe.y > 0)
                     {
                         swipedUp = true;
+                        return 0;
                     }
                     else
                     {
                         swipedDown = true;
+                        return 2;
                     }
                 }
             }
@@ -84,6 +88,6 @@ public class SwipeManager : MonoBehaviour
             swipedRight = swipedRight || Input.GetKeyDown(KeyCode.RightArrow);
             swipedLeft = swipedLeft || Input.GetKeyDown(KeyCode.LeftArrow);
         }
-        return 0;
+        return -1;
     }
 }

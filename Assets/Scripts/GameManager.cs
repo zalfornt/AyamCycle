@@ -16,14 +16,16 @@ public class GameManager : MonoBehaviour
     private int nextX; private int nextY;
 
     public bool ReadyToMove{get; set;}
-    public int movingTiles = 0;
+    //public int movingTiles = 0;
 
+    private bool tilesMoved;
     private bool waitForSpawn;
     private bool playing;
 
     private int tempCount;
 
-    private bool stillMoving;
+    public List<Tile> movingTiles;
+    public int movingTilesCount;
 
     private void Awake()
     {
@@ -56,17 +58,17 @@ public class GameManager : MonoBehaviour
     void InputManager()
     {
         if(ReadyToMove && playing){
-//#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBPLAYER
+            //#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBPLAYER
             if (Input.GetKeyDown(KeyCode.UpArrow))
-            MoveTiles(0);
+                MoveTiles(0);
             else if (Input.GetKeyDown(KeyCode.RightArrow))
-            MoveTiles(1);
+                MoveTiles(1);
             else if (Input.GetKeyDown(KeyCode.DownArrow))
-            MoveTiles(2);
+                MoveTiles(2);
             else if (Input.GetKeyDown(KeyCode.LeftArrow))
-            MoveTiles(3);
-//#elif UNITY_ANDROID || UNITY_IOS
-            SwipeManager.Swipe();
+                MoveTiles(3);
+            //#elif UNITY_ANDROID || UNITY_IOS
+            MoveTiles(SwipeManager.Swipe());
 //#endif
         }
         //if (Input.GetKeyDown(KeyCode.Space)) //For Debugging Purposes Only
@@ -75,7 +77,10 @@ public class GameManager : MonoBehaviour
 
     void MoveTiles(int dir)
     {
+        if (dir == -1) return; //if failed to swipe
+
         ReadyToMove = false;
+        tilesMoved = false;
 
         Vector2 moveDir = Vector2.zero;
 
@@ -128,40 +133,37 @@ public class GameManager : MonoBehaviour
 
                     currX = (int)currCell.x; currY = (int)currCell.y;
                     nextX = (int)nextCell.x; nextY = (int)nextCell.y;
-                        
+
                     //if next cell is another tile that is combineable, go combine
                     if (InsideGrid(nextCell) && grid[nextX, nextY] != null &&
-                        TestCombinable(grid[x, y], grid[nextX, nextY]))
+                        TestCombinable(grid[x, y], grid[nextX, nextY], true))
                     {
-                        //Debug.Log("combine and move");
-                        grid[x, y].SetNewDestination(x, y, nextX, nextY, true, grid[nextX, nextY]);
+                        
+                            //Debug.Log("combine and move");
+                            grid[x, y].SetNewDestination(x, y, nextX, nextY, true, grid[nextX, nextY]);
+                            tilesMoved = true;
                     }
                     else
                     {
+                        if (x == currX && y == currY)
+                        {
+                            //tile was not moved
+                            continue;
+                        }
                         grid[x, y].SetNewDestination(x,y,currX,currY);
+                        tilesMoved = true;
                         //Debug.Log(currX + "," + currY);
                     }
                 }
             }
         }
-
-        //if full, check if there is next possible move
-        if (CheckGridFullness())
-        {
-            if (FindNextAvailableMove())
-            {
-                waitForSpawn = true;
-            }
-            else
-            {
-                playing = false;
-                losePanel.SetActive(true);
-            }
-        }
-        else
-        {
+        
+        
+        //else
+        //{
+            if (!tilesMoved) return;
             waitForSpawn = true;
-        }
+        //}
     }
 
     private void CheckTileMovement()
@@ -189,14 +191,25 @@ public class GameManager : MonoBehaviour
         //    ReadyToMove = true;
         //}
 
-        if(movingTiles == 0)
-        {
-            ReadyToMove = true;
-            Debug.Log("all tiles moved");
-            return;
-        }
-        Debug.Log("still moving");
+        //if(movingTiles <= 0)
+        //{
+        //    ReadyToMove = true;
+        //    Debug.Log("all tiles moved");
+        //    return;
+        //}
+        //Debug.Log("still moving");
 
+        //movingTilesCount = movingTiles.Count;
+        for(int i = 0; i < movingTiles.Count; i++)
+        {
+            if (movingTiles[i])
+            {
+                if (!movingTiles[i].moving && !movingTiles[i].moveAndCombine) movingTiles.RemoveAt(i);
+                else return;
+            }
+            else if(movingTiles[i] == null) movingTiles.RemoveAt(i);
+        }
+        if(movingTiles.Count <= 0) ReadyToMove = true;
     }
 
     private int CountTiles()
@@ -214,11 +227,12 @@ public class GameManager : MonoBehaviour
 
     private void SpawnTile()
     {
-        if (CheckGridFullness()) { Debug.Log("no more slot"); return; }
+        if (CheckGridFullness() && playing) { Debug.Log("no more slot"); return; }
 
         int randX;
         int randY;
-        do{
+        do
+        {
             randX = Random.Range(0, 4);
             randY = Random.Range(0, 4);
         } while (grid[randX, randY] != null);
@@ -235,6 +249,19 @@ public class GameManager : MonoBehaviour
         newTile.gender = (Tile.Gender)gender;
         Blackboard.Instance.TileSpriteHandler.SetNewSprite(newTile.stage, newTile.gender, newTile.spr);
         grid[randX, randY] = newTile;
+
+
+        //if full, check if there is next possible move
+        if (CheckGridFullness())
+        {
+            //Debug.Log("no more move");
+            if (!FindNextAvailableMove())
+            {
+                playing = false;
+                losePanel.SetActive(true);
+                return;
+            }
+        }
     }
 
     private bool FindNextAvailableMove()
@@ -264,9 +291,9 @@ public class GameManager : MonoBehaviour
                     }
                     if (InsideGrid(currTile + direction))
                     {
-                        if (TestCombinable(grid[x, y], grid[x + (int)direction.x, y + (int)direction.y]))
+                        if (TestCombinable(grid[x, y], grid[x + (int)direction.x, y + (int)direction.y], false))
                         {
-                            Debug.Log("match found");
+                            Debug.Log("match found at " + x + "," + y);
                             return true;
                         }
                     }
@@ -296,14 +323,17 @@ public class GameManager : MonoBehaviour
         return false;
     }
 
-    private bool TestCombinable(Tile tile1, Tile tile2)
+    private bool TestCombinable(Tile tile1, Tile tile2, bool actual)
     {
         //if (tile1.combineable && tile2.combineable && tile1.stage == tile2.stage)
         //{
         //    return tile1.stage == 4 ? (tile1.gender != tile2.gender ? true : false) : true;
         //}
         //return false;
+        if(actual)
         return (tile1.combineable && tile2.combineable && tile1.stage == tile2.stage) ? 
             (tile1.stage == 4 ? (tile1.gender != tile2.gender ? true : false) : true) : false;
+        else return (tile1.stage == tile2.stage) ? (tile1.stage == 4 ? 
+                (tile1.gender != tile2.gender ? true : false) : true) : false;
     }
 }
