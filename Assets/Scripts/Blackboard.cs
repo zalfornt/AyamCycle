@@ -19,4 +19,5 @@ public class Blackboard
     public Transform[] TilesPosition { get; set; }
     public GameManager GameManager { get; set; }
     public TileSpriteHandler TileSpriteHandler { get; set; }
+    public LevelObjective LevelObjective { get; set; }
 }

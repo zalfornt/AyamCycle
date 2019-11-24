@@ -97,7 +97,7 @@ public class Tile : MonoBehaviour
     public void TriggerNextStage()
     {
         Blackboard.Instance.TileSpriteHandler.SetNewSprite(stage, gender, spr);
-
+        Blackboard.Instance.LevelObjective.AddToObjectives(stage, gender);
         //Debug.Log("combined");
         //set vfx(?)
         //gives score

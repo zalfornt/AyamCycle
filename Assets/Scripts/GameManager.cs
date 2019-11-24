@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
 {
 
     public GameObject tilePrefab;
+    public GameObject winPanel;
     public GameObject losePanel;
     public Tile[,] grid = new Tile[4, 4];
 
@@ -20,7 +21,8 @@ public class GameManager : MonoBehaviour
 
     private bool tilesMoved;
     private bool waitForSpawn;
-    private bool playing;
+
+    public bool playing;
 
     private int tempCount;
 
@@ -257,8 +259,7 @@ public class GameManager : MonoBehaviour
             //Debug.Log("no more move");
             if (!FindNextAvailableMove())
             {
-                playing = false;
-                losePanel.SetActive(true);
+                LoseGame();
                 return;
             }
         }
@@ -335,5 +336,18 @@ public class GameManager : MonoBehaviour
             (tile1.stage == 4 ? (tile1.gender != tile2.gender ? true : false) : true) : false;
         else return (tile1.stage == tile2.stage) ? (tile1.stage == 4 ? 
                 (tile1.gender != tile2.gender ? true : false) : true) : false;
+    }
+
+
+    public void LoseGame()
+    {
+        playing = false;
+        losePanel.SetActive(true);
+    }
+
+    public void WinGame()
+    {
+        playing = false;
+        winPanel.SetActive(true);
     }
 }

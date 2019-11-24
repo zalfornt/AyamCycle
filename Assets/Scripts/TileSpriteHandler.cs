@@ -1,10 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.UI;
 
 public class TileSpriteHandler : MonoBehaviour
 {
-    public Sprite[] chickenStagesSprites; 
+    public Sprite[] chickenStagesSprites;
 
 
     private void Awake()
@@ -23,7 +22,7 @@ public class TileSpriteHandler : MonoBehaviour
                 spr.sprite = chickenStagesSprites[stage];
                 break;
             case 4:
-                if(gender == Tile.Gender.MALE)
+                if (gender == Tile.Gender.MALE)
                 {
                     spr.sprite = chickenStagesSprites[4];
                 }
@@ -33,5 +32,10 @@ public class TileSpriteHandler : MonoBehaviour
                 }
                 break;
         }
+    }
+
+    public void SetNewTargetSprite(int stage, Image img)
+    {
+        img.sprite = chickenStagesSprites[stage];
     }
 }
