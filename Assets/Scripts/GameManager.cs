@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public GameObject tilePrefab;
     public GameObject winPanel;
     public GameObject losePanel;
+    public GameObject pausePanel;
     public Tile[,] grid = new Tile[4, 4];
 
     private Vector2 currCell;
@@ -21,6 +22,7 @@ public class GameManager : MonoBehaviour
 
     private bool tilesMoved;
     private bool waitForSpawn;
+    private bool isPaused;
 
     public bool playing;
 
@@ -31,6 +33,7 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
+        Time.timeScale = 1f;
         Blackboard.Instance.GameManager = this;
     }
 
@@ -38,6 +41,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         playing = true;
+        isPaused = false;
         waitForSpawn = false;
         SpawnTile(); SpawnTile();
         ReadyToMove = true;
@@ -343,11 +347,28 @@ public class GameManager : MonoBehaviour
     {
         playing = false;
         losePanel.SetActive(true);
+        Time.timeScale = 0f;
     }
 
     public void WinGame()
     {
         playing = false;
         winPanel.SetActive(true);
+        Time.timeScale = 0f;
+    }
+
+    public void TogglePause()
+    {
+        isPaused = !isPaused;
+        if (isPaused)
+        {
+            Time.timeScale = 0f;
+            pausePanel.SetActive(true);
+        }
+        else
+        {
+            Time.timeScale = 1f;
+            pausePanel.SetActive(false);
+        }
     }
 }
