@@ -5,11 +5,11 @@ using TMPro;
 
 public class GameManager : MonoBehaviour
 {
-
     public GameObject tilePrefab;
     public GameObject winPanel;
     public GameObject losePanel;
     public GameObject pausePanel;
+    public AudioClip inGameMusic;
     public Tile[,] grid = new Tile[4, 4];
 
     private Vector2 currCell;
@@ -42,6 +42,7 @@ public class GameManager : MonoBehaviour
     {
         playing = true;
         isPaused = false;
+        MusicPlayer.PlayAudio(inGameMusic);
         waitForSpawn = false;
         SpawnTile(); SpawnTile();
         ReadyToMove = true;
