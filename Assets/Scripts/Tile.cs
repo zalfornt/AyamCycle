@@ -11,6 +11,7 @@ public class Tile : MonoBehaviour
     private Tile combinedTile;
     private Vector3 currPos;
     private Vector3 newPos;
+    private int moveSpeed;
 
     public int stage;
     public Gender gender;
@@ -26,6 +27,7 @@ public class Tile : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        moveSpeed = 35;
         //spr = GetComponent<SpriteRenderer>();
         combineable = true;
         moving = false;
@@ -39,7 +41,7 @@ public class Tile : MonoBehaviour
         if (transform.position != newPos && (moving || moveAndCombine))
         {
             Blackboard.Instance.GameManager.ReadyToMove = false;
-            transform.position = Vector3.MoveTowards(transform.position, newPos, 25 * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, newPos, moveSpeed * Time.deltaTime);
         }
         else
         {
