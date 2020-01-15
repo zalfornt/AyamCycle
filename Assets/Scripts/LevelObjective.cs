@@ -58,6 +58,7 @@ public class LevelObjective : MonoBehaviour
             UpdateTimer();
             if (timer <= 0)
             {
+                gm.loseByTime = true;
                 gm.LoseGame();
             }
         }

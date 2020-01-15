@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.Advertisements;
 
 public class GameManager : MonoBehaviour
 {
@@ -33,6 +34,7 @@ public class GameManager : MonoBehaviour
     public List<Tile> movingTiles;
     public int movingTilesCount;
 
+    public bool loseByTime;
     private void Awake()
     {
         Time.timeScale = 1f;
@@ -49,6 +51,7 @@ public class GameManager : MonoBehaviour
         waitForSpawn = false;
         SpawnTile(); SpawnTile();
         ReadyToMove = true;
+        loseByTime = false;
     }
 
     // Update is called once per frame
@@ -348,8 +351,22 @@ public class GameManager : MonoBehaviour
 
     public void LoseGame()
     {
+        
         playing = false;
         losePanel.SetActive(true);
+
+        if (loseByTime)
+        {
+            losePanel.GetComponent<LosePanelHandler>().ActivateRewardedAds();
+        }
+
+        Blackboard.Instance.playCount += 1;
+        if (Blackboard.Instance.playCount >= 5)
+        {
+            Blackboard.Instance.playCount = 0;
+            Advertisement.Show("video");
+        }
+
         Time.timeScale = 0f;
     }
 
@@ -358,6 +375,14 @@ public class GameManager : MonoBehaviour
         playing = false;
         winPanel.SetActive(true);
         if(PlayerPrefs.GetInt("HighestLevel") < level) PlayerPrefs.SetInt("HighestLevel", level);
+
+        Blackboard.Instance.playCount += 1;
+        if (Blackboard.Instance.playCount >= 3)
+        {
+            Blackboard.Instance.playCount = 0;
+            Advertisement.Show("video");
+        }
+
         Time.timeScale = 0f;
     }
 
@@ -400,5 +425,15 @@ public class GameManager : MonoBehaviour
         {
             SceneManager.LoadScene("LevelSelection");
         }
+    }
+
+    public void RestartTimer()
+    {
+        Debug.Log("Timer restart");
+        playing = true;
+        losePanel.SetActive(false);
+        Blackboard.Instance.LevelObjective.timer += 180;
+        Time.timeScale = 1f;
+        TogglePause();
     }
 }

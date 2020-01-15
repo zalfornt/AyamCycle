@@ -15,6 +15,11 @@ public class Blackboard
         }
     }
 
+    Blackboard()
+    {
+        playCount = 1;
+    }
+
     //PROPERTIES
     public Transform[] TilesPosition { get; set; }
     public GameManager GameManager { get; set; }
@@ -22,4 +27,5 @@ public class Blackboard
     public LevelObjective LevelObjective { get; set; }
     public Objective Objective { get; set; }
     public LevelLibrary LevelLibrary { get; set; }
+    public int playCount;
 }
