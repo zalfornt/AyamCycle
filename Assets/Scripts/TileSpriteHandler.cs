@@ -11,7 +11,7 @@ public class TileSpriteHandler : MonoBehaviour
         Blackboard.Instance.TileSpriteHandler = this;
     }
 
-    public void SetNewSprite(int stage, Tile.Gender gender, SpriteRenderer spr)
+    public void SetNewSprite(int stage, Tile.Gender gender, SpriteRenderer spr, bool isTimesTwo)
     {
         switch (stage)
         {
@@ -31,6 +31,14 @@ public class TileSpriteHandler : MonoBehaviour
                     spr.sprite = chickenStagesSprites[5];
                 }
                 break;
+        }
+        if (isTimesTwo)
+        {
+            spr.gameObject.transform.GetChild(0).gameObject.SetActive(true);
+        }
+        else
+        {
+            spr.gameObject.transform.GetChild(0).gameObject.SetActive(false);
         }
     }
 

@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    public int level;
     public GameObject tilePrefab;
     public GameObject winPanel;
     public GameObject losePanel;
@@ -40,6 +42,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        level = Blackboard.Instance.Objective.level;
         playing = true;
         isPaused = false;
         MusicPlayer.PlayAudio(inGameMusic);
@@ -254,7 +257,7 @@ public class GameManager : MonoBehaviour
         Tile newTile = Instantiate(tilePrefab, GridController.FindTilePos(randX, randY), Quaternion.identity).GetComponent<Tile>();
         newTile.stage = startStage;
         newTile.gender = (Tile.Gender)gender;
-        Blackboard.Instance.TileSpriteHandler.SetNewSprite(newTile.stage, newTile.gender, newTile.spr);
+        Blackboard.Instance.TileSpriteHandler.SetNewSprite(newTile.stage, newTile.gender, newTile.spr, false);
         grid[randX, randY] = newTile;
 
 
@@ -343,7 +346,6 @@ public class GameManager : MonoBehaviour
                 (tile1.gender != tile2.gender ? true : false) : true) : false;
     }
 
-
     public void LoseGame()
     {
         playing = false;
@@ -355,6 +357,7 @@ public class GameManager : MonoBehaviour
     {
         playing = false;
         winPanel.SetActive(true);
+        if(PlayerPrefs.GetInt("HighestLevel") < level) PlayerPrefs.SetInt("HighestLevel", level);
         Time.timeScale = 0f;
     }
 
@@ -370,6 +373,32 @@ public class GameManager : MonoBehaviour
         {
             Time.timeScale = 1f;
             pausePanel.SetActive(false);
+        }
+    }
+
+    public void LoadNextLevel()
+    {
+        
+        if(level  < 8)
+        {
+            var nextObj = Blackboard.Instance.LevelLibrary.levels[level];
+            Blackboard.Instance.Objective = nextObj;
+            if (level  < 3)
+            {
+                SceneManager.LoadScene("Level-1O");
+            }
+            else if (level < 6)
+            {
+                SceneManager.LoadScene("Level-2O");
+            }
+            else if (level < 8)
+            {
+                SceneManager.LoadScene("Level-3O");
+            }
+        }
+        else
+        {
+            SceneManager.LoadScene("LevelSelection");
         }
     }
 }

@@ -20,4 +20,6 @@ public class Blackboard
     public GameManager GameManager { get; set; }
     public TileSpriteHandler TileSpriteHandler { get; set; }
     public LevelObjective LevelObjective { get; set; }
+    public Objective Objective { get; set; }
+    public LevelLibrary LevelLibrary { get; set; }
 }

@@ -7,6 +7,7 @@ public class Tile : MonoBehaviour
     public enum Gender { MALE, FEMALE };
 
     public SpriteRenderer spr;
+    public Animator anim;
 
     private Tile combinedTile;
     private Vector3 currPos;
@@ -18,10 +19,12 @@ public class Tile : MonoBehaviour
     public bool combineable;
     public bool moving;
     public bool moveAndCombine;
+    public bool isX2; //isTimesTwo
 
     private void Awake()
     {
         spr = GetComponent<SpriteRenderer>();
+        anim = GetComponent<Animator>();
     }
 
     // Start is called before the first frame update
@@ -29,6 +32,7 @@ public class Tile : MonoBehaviour
     {
         moveSpeed = 35;
         //spr = GetComponent<SpriteRenderer>();
+        isX2 = false;
         combineable = true;
         moving = false;
         moveAndCombine = false;
@@ -84,9 +88,15 @@ public class Tile : MonoBehaviour
             Blackboard.Instance.GameManager.grid[oldX, oldY] = null;
             newPos = GridController.FindTilePos(newX, newY);
             combinedTile = _combinedTile;
+            if (isX2 || combinedTile.isX2) combinedTile.isX2 = true;
             if (combinedTile.stage == 4)
             {
                 combinedTile.stage = 0;
+                if (!combinedTile.isX2)
+                {
+                    float rand = Random.Range(0f, 1.0f);
+                    if (rand < 0.5f) combinedTile.isX2 = true;
+                }
             }
             else
             {
@@ -98,10 +108,9 @@ public class Tile : MonoBehaviour
 
     public void TriggerNextStage()
     {
-        Blackboard.Instance.TileSpriteHandler.SetNewSprite(stage, gender, spr);
-        Blackboard.Instance.LevelObjective.AddToObjectives(stage, gender);
+        Blackboard.Instance.TileSpriteHandler.SetNewSprite(stage, gender, spr, isX2);
+        Blackboard.Instance.LevelObjective.AddToObjectives(stage, gender, isX2);
         //Debug.Log("combined");
-        //set vfx(?)
-        //gives score
+        anim.SetTrigger("combined");
     }
 }
