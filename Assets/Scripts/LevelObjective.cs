@@ -13,6 +13,8 @@ public class LevelObjective : MonoBehaviour
 
     public int[] stageHolder = new int[3];
 
+    public bool isEndless;
+
     private GameManager gm;
     public float timer;
     private int intTime;
@@ -21,6 +23,8 @@ public class LevelObjective : MonoBehaviour
     {
         Blackboard.Instance.LevelObjective = this;
         objective = Blackboard.Instance.Objective;
+        if (objective.level == 0) isEndless = true;
+        else isEndless = false;
         timer = objective.time;
     }
 
@@ -48,7 +52,7 @@ public class LevelObjective : MonoBehaviour
 
     private void Update()
     {
-        if (gm.playing)
+        if (gm.playing && !isEndless)
         {
             timer -= Time.deltaTime;
             UpdateTimer();
@@ -67,7 +71,7 @@ public class LevelObjective : MonoBehaviour
     public void AddToObjectives(int stage, Tile.Gender gender, bool isX2)
     {
         if (stage == 4 && gender == Tile.Gender.FEMALE) stage = 5;
-        if (amountToGoal[stage] > 0)
+        if (amountToGoal[stage] > 0 && !isEndless)
         {
             int multiplier = 1;
             if (isX2) multiplier = 2;

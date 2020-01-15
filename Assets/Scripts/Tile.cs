@@ -95,7 +95,7 @@ public class Tile : MonoBehaviour
                 if (!combinedTile.isX2)
                 {
                     float rand = Random.Range(0f, 1.0f);
-                    if (rand < 0.5f) combinedTile.isX2 = true;
+                    if (rand < 0.8f) combinedTile.isX2 = true;
                 }
             }
             else

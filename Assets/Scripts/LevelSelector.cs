@@ -23,5 +23,9 @@ public class LevelSelector : MonoBehaviour
         {
             SceneManager.LoadScene("Level-3O");
         }
+        else if (objCount == 4)
+        {
+            SceneManager.LoadScene("Endless");
+        }
     }
 }
