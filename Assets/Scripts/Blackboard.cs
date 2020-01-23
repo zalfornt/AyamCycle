@@ -17,7 +17,7 @@ public class Blackboard
 
     Blackboard()
     {
-        playCount = 1;
+        playCount = 0;
     }
 
     //PROPERTIES

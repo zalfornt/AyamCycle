@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
-using UnityEngine.Advertisements;
+//using UnityEngine.Advertisements;
 
 public class GameManager : MonoBehaviour
 {
@@ -361,10 +361,10 @@ public class GameManager : MonoBehaviour
         }
 
         Blackboard.Instance.playCount += 1;
-        if (Blackboard.Instance.playCount >= 5)
+        if (Blackboard.Instance.playCount >= 3)
         {
             Blackboard.Instance.playCount = 0;
-            Advertisement.Show("video");
+            AdsHandler.Instance.ShowVideoAds();
         }
 
         Time.timeScale = 0f;
@@ -380,7 +380,7 @@ public class GameManager : MonoBehaviour
         if (Blackboard.Instance.playCount >= 3)
         {
             Blackboard.Instance.playCount = 0;
-            Advertisement.Show("video");
+            AdsHandler.Instance.ShowVideoAds();
         }
 
         Time.timeScale = 0f;
